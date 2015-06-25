@@ -38,7 +38,7 @@ stopwords = stopwords.words('english')
  
 def leaves(tree):
     """Finds NP (nounphrase) leaf nodes of a chunk tree."""
-    for subtree in tree.subtrees(filter = lambda t: t.node=='NP' or t.node=='VP'):
+    for subtree in tree.subtrees(filter = lambda t: t.node=='NP'):
         yield subtree.leaves()
  
 def normalise(word):

@@ -59,7 +59,7 @@ def filter_sent(sent):
 	from transforms import singularize_plural_noun
 	from transforms import swap_noun_cardinal
 
-	print filter_insignificant(sent)
+	#print filter_insignificant(sent)
 	return singularize_plural_noun(swap_infinitive_phrase(swap_noun_cardinal(swap_verb_phrase(correct_verbs(filter_insignificant(sent))))))
 
 
@@ -74,16 +74,26 @@ for i in range(1,number_of_words):
 	content = content+sys.argv[i]  + " "
 
 #content contains raw data till this point
+document = content
 
-def ie_preprocess(document):
-	sentences = nltk.sent_tokenize(document)
-	sentences = [nltk.word_tokenize(sent) for sent in sentences]
-	sentences = [nltk.pos_tag(sent) for sent in sentences]
-	return sentences
+document = stem_document(document)
+document = lemmatize_document(document)
+document = regex_replacer_document(document)
+#document = spelling_replacer(document)
+#document = antonym_dealer(document)
 
-content = ie_preprocess(content)
+sentences = nltk.sent_tokenize(document)
+words = [nltk.word_tokenize(sent) for sent in sentences]
+words = [w for w in words if not w in stopwords.words('english')]
 
-grammar = r"""
+document = regex_replacer_document(document)
+
+
+
+
+
+
+grammar1 = r"""
   NP: {<DT|PP\$>?<JJ>*<NN>}   # chunk determiner/possessive, adjectives and noun
       {<NNP>+}                # chunk sequences of proper nouns
 """	
@@ -91,7 +101,7 @@ grammar = r"""
 grammar2 = r"""
   NP: {<DT|JJ|JJS|CD|NN.*>+}          # Chunk sequences of DT, JJ, NN
   PP: {<IN><NP>}               # Chunk prepositions followed by NP
-  VP: {<VB.*><NP|PP|CLAUSE>+$} # Chunk verbs and their arguments
+  VP: {<VB.*>} # Chunk verbs and their arguments
   CLAUSE: {<NP><VP>}           # Chunk NP, VP
   """
 
@@ -99,7 +109,7 @@ def traverse (t):
 	if isinstance (t, nltk.tree.Tree):
 		if t.node == 'NP' or t.node == 'VP':
 			print t.node
-			print t
+			#print t
 			temp= ''
 			for child in t:
 				temp = temp +child[0] + " "
@@ -113,13 +123,74 @@ def traverse (t):
 
 
 
-cp = nltk.RegexpParser(grammar)
+
+def ie_preprocess(document):
+	sentences = nltk.sent_tokenize(document)
+	sentences = [nltk.word_tokenize(sent) for sent in sentences]
+	sentences = [nltk.pos_tag(sent) for sent in sentences]
+	return sentences
+
+
+
+cp1 = nltk.RegexpParser(grammar1)
 cp2 = nltk.RegexpParser(grammar2)
 
-for sent in content:
+document = ie_preprocess(document)
+
+for sent in document:
+	print(sent)
+	
 	result = cp2.parse(sent)
-	#print(result)
 	traverse(result)
+
+
+
+
+# def ie_preprocess(document):
+# 	sentences = nltk.sent_tokenize(document)
+# 	sentences = [nltk.word_tokenize(sent) for sent in sentences]
+# 	sentences = [nltk.pos_tag(sent) for sent in sentences]
+# 	return sentences
+
+# content = ie_preprocess(content)
+
+# grammar = r"""
+#   NP: {<DT|PP\$>?<JJ>*<NN>}   # chunk determiner/possessive, adjectives and noun
+#       {<NNP>+}                # chunk sequences of proper nouns
+# """	
+
+# grammar2 = r"""
+#   NP: {<DT|JJ|JJS|CD|NN.*>+}          # Chunk sequences of DT, JJ, NN
+#   PP: {<IN><NP>}               # Chunk prepositions followed by NP
+#   VP: {<VB.*><NP|PP|CLAUSE>+$} # Chunk verbs and their arguments
+#   CLAUSE: {<NP><VP>}           # Chunk NP, VP
+#   """
+
+# def traverse (t):
+# 	if isinstance (t, nltk.tree.Tree):
+# 		if t.node == 'NP' or t.node == 'VP':
+# 			print t.node
+# 			print t
+# 			temp= ''
+# 			for child in t:
+# 				temp = temp +child[0] + " "
+# 			print temp	
+# 			for child in t:
+# 				traverse(child)
+# 		else:
+# 			for child in t:
+# 				traverse (child)
+
+
+
+
+# cp = nltk.RegexpParser(grammar)
+# cp2 = nltk.RegexpParser(grammar2)
+
+# for sent in content:
+# 	result = cp2.parse(sent)
+# 	#print(result)
+# 	traverse(result)
 
 
 
