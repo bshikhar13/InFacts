@@ -1,15 +1,7 @@
 import nltk
 nltk.data.path.append('/home/shikhar/Documents/Shikhar/namo/nltk_data')
-import  re, pprint
 from nltk.corpus import stopwords
-from nltk.chunk import *
-from nltk.chunk.util import *
-from nltk.chunk.regexp import *
-from nltk import Tree
-from nltk.chunk import RegexpParser
-from nltk.corpus import conll2000
-import sys
-from nltk.corpus import stopwords
+
 
 
 #Stemming the document
@@ -62,75 +54,31 @@ def filter_sent(sent):
 	print filter_insignificant(sent)
 	return singularize_plural_noun(swap_infinitive_phrase(swap_noun_cardinal(swap_verb_phrase(correct_verbs(filter_insignificant(sent))))))
 
+document = """Iphone is expensive. Iphone has battery drain problem issue. the terrible movie. is your children learning. The book of recipes was great. Android One is good. Iphone has battery Drain problem. Andrid One has good design. Android one includes SnapDragon Processor. Android one has high RAM . The feeling of un boxing it and switching it on for the first time is something in itself! You will be surprised to find it so light compared to its screen size. Amazingly smooth and has a much better battery life. Charges faster if you use an ipad charger with it. The double tap for accessibility is great and very useful. The camera does far better than its predecessor. You will love it when you own it. smooth performance when compared to iPhone 5S
+iOS 8.0 having some bugs hope it will fixed by Apple in upcoming updates 8.3
+Battery backup is also good when using 3G 
+Metal body is giving rich look
+Same 8 megapixel rear camera with some new features like time lapse, fast motion...etc.
+Screen is big.so just difficult to deal with thump on top Back button on screen.
+But we double tap on Touch ID screen will coming down so it is good option to use.
+Overall it's great."""
 
-number_of_words =  len(sys.argv)-1
-print number_of_words
-content = ""
+print(document)
+sentences = nltk.sent_tokenize(document)
+words = [nltk.word_tokenize(sent) for sent in sentences]
+words = [w for w in words if not w in stopwords.words('english')]
 
-
-
-
-for i in range(1,number_of_words):
-	content = content+sys.argv[i]  + " "
-
-#content contains raw data till this point
-
-def ie_preprocess(document):
-	sentences = nltk.sent_tokenize(document)
-	sentences = [nltk.word_tokenize(sent) for sent in sentences]
-	sentences = [nltk.pos_tag(sent) for sent in sentences]
-	return sentences
-
-content = ie_preprocess(content)
-
-grammar = r"""
-  NP: {<DT|PP\$>?<JJ>*<NN>}   # chunk determiner/possessive, adjectives and noun
-      {<NNP>+}                # chunk sequences of proper nouns
-"""	
-
-grammar2 = r"""
-  NP: {<DT|JJ|JJS|CD|NN.*>+}          # Chunk sequences of DT, JJ, NN
-  PP: {<IN><NP>}               # Chunk prepositions followed by NP
-  VP: {<VB.*><NP|PP|CLAUSE>+$} # Chunk verbs and their arguments
-  CLAUSE: {<NP><VP>}           # Chunk NP, VP
-  """
-
-def traverse (t):
-	if isinstance (t, nltk.tree.Tree):
-		if t.node == 'NP' or t.node == 'VP':
-			print t.node
-			print t
-			temp= ''
-			for child in t:
-				temp = temp +child[0] + " "
-			print temp	
-			for child in t:
-				traverse(child)
-		else:
-			for child in t:
-				traverse (child)
+document = regex_replacer_document(document)
 
 
-
-
-cp = nltk.RegexpParser(grammar)
-cp2 = nltk.RegexpParser(grammar2)
-
-for sent in content:
-	result = cp2.parse(sent)
-	#print(result)
-	traverse(result)
-
-
-
-
-
-
-#do with this
-# for sent in content:
-# 	result = cp.parse(sent)
-# 	print(result)
-# 	#result.draw()
-
-
-# print content;
+for sent in nltk.sent_tokenize(document):
+	#print(sent)
+	sent = nltk.pos_tag(sent.split())
+	#print(sent)
+	sent = filter_sent(sent)
+	l = len(sent)
+	print(sent)
+	for i in range (0,l):
+		print(sent[i][0])
+	#print(sent)
+	print("\n")
